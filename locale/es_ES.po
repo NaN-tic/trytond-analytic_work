@@ -4,27 +4,27 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:analytic_account.line-timesheet.line:"
 msgid "The Analtyic Line must be unique."
-msgstr "El apunte anal��tico debe ser ��nico"
+msgstr "El apunte analítico debe ser único"
 
 msgctxt "error:analytic_account.line-timesheet.line:"
 msgid "The Timesheet Line must be unique."
-msgstr "La l��nia del parte de trabajo ha de ser ��nica."
+msgstr "La línia del parte de trabajo ha de ser única."
 
 msgctxt "field:analytic_account.line,timesheet_line:"
 msgid "Timesheet Line"
-msgstr "L��nea de parte de trabajo"
+msgstr "Línea de parte de trabajo"
 
 msgctxt "field:analytic_account.line-timesheet.line,analytic_line:"
 msgid "Analytic Line"
-msgstr "L��nea anal��tica"
+msgstr "Línea analítica"
 
 msgctxt "field:analytic_account.line-timesheet.line,create_date:"
 msgid "Create Date"
-msgstr "Fecha de creaci��n"
+msgstr "Fecha de creación"
 
 msgctxt "field:analytic_account.line-timesheet.line,create_uid:"
 msgid "Create User"
-msgstr "Usuario de creaci��n"
+msgstr "Usuario de creación"
 
 msgctxt "field:analytic_account.line-timesheet.line,id:"
 msgid "ID"
@@ -36,20 +36,20 @@ msgstr "Nombre"
 
 msgctxt "field:analytic_account.line-timesheet.line,timesheet_line:"
 msgid "Timesheet Line"
-msgstr "L��nea de parte de trabajo"
+msgstr "Línea de parte de trabajo"
 
 msgctxt "field:analytic_account.line-timesheet.line,write_date:"
 msgid "Write Date"
-msgstr "Fecha modificaci��n"
+msgstr "Fecha modificación"
 
 msgctxt "field:analytic_account.line-timesheet.line,write_uid:"
 msgid "Write User"
-msgstr "Usuario modificaci��n"
+msgstr "Usuario modificación"
 
 msgctxt "field:timesheet.line,analytic_line:"
 msgid "Analytic Line"
-msgstr "L��nea anal��tica"
+msgstr "Línea analítica"
 
 msgctxt "model:analytic_account.line-timesheet.line,name:"
 msgid "Analtyic Line - Timesheet Line"
-msgstr "Apunte anal��tico - L��nea del parte de trabajo"
+msgstr "Apunte analítico - Línea del parte de trabajo"

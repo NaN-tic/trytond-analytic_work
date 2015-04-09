@@ -39,12 +39,18 @@ class Line:
         'timesheet_line', 'analytic_line', 'Analytic Line')
 
     def get_analytic_line_values(self):
+        pool = Pool()
+        Journal = pool.get('account.journal')
+        expenses = Journal.search([
+                ('type', '=', 'expense'),
+                ])
         val = {
             'name': self.description or self.work.name,
             'debit': _ZERO,
             'credit': self.compute_cost(),
             'account': self.work.account.id,
             'date': self.date,
+            'journal': expenses[0].id,
             'active': True,
             'timesheet_line': self.id,
         }
