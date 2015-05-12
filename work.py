@@ -36,7 +36,7 @@ class Line:
 
     analytic_line = fields.One2One(
         'analytic_account.line-timesheet.line',
-        'timesheet_line', 'analytic_line', 'Analytic Line')
+        'timesheet_line', 'analytic_line', 'Analytic Line', readonly=True)
 
     def get_analytic_line_values(self):
         pool = Pool()
