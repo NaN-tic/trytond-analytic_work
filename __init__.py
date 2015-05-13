@@ -6,8 +6,6 @@ from .work import *
 
 def register():
     Pool.register(
-        AnalyticTimesheetRelation,
         Line,
-        AnalyticLine,
         TimesheetWork,
         module='analytic_work', type_='model')

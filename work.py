@@ -4,8 +4,7 @@ from decimal import Decimal
 
 __metaclass__ = PoolMeta
 
-__all__ = ['Line', 'TimesheetWork', 'AnalyticTimesheetRelation',
-    'AnalyticLine']
+__all__ = ['Line', 'TimesheetWork']
 
 _ZERO = Decimal('0.00')
 
@@ -16,88 +15,73 @@ class TimesheetWork:
     account = fields.Many2One('analytic_account.account', 'Analytic Account')
 
 
-class AnalyticLine:
-    __name__ = 'analytic_account.line'
-
-    timesheet_line = fields.One2One(
-        'analytic_account.line-timesheet.line',
-        'analytic_line', 'timesheet_line', 'Timesheet Line')
-
-    @classmethod
-    def copy(cls, lines, default=None):
-        if default is None:
-            default = {}
-        default.setdefault('timesheet_line', None)
-        return super(AnalyticLine, cls).copy(lines, default=default)
-
-
 class Line:
     __name__ = 'timesheet.line'
 
-    analytic_line = fields.One2One(
-        'analytic_account.line-timesheet.line',
-        'timesheet_line', 'analytic_line', 'Analytic Line', readonly=True)
+    analytic_line = fields.Many2One('analytic_account.line', 'Analytic Line',
+        readonly=True)
 
-    def get_analytic_line_values(self):
+    def get_analytic_line(self, line=None):
         pool = Pool()
         Journal = pool.get('account.journal')
-        expenses = Journal.search([
-                ('type', '=', 'expense'),
-                ])
-        val = {
-            'name': self.description or self.work.name,
-            'debit': _ZERO,
-            'credit': self.compute_cost(),
-            'account': self.work.account.id,
-            'date': self.date,
-            'journal': expenses[0].id,
-            'active': True,
-            'timesheet_line': self.id,
-        }
-        return val
-
-    def create_analytic_line(self):
-        AnalyticLine = Pool().get('analytic_account.line')
-        values = self.get_analytic_line_values()
-        AnalyticLine.create([values])
-
-    def check_analytic_line(self):
-        if not self.work.account:
-            return
-        if self.analytic_line:
-            self.update_analytic_line()
-        else:
-            self.create_analytic_line()
-
-    def update_analytic_line(self):
-        line = self.analytic_line
-        line.credit = self.compute_cost()
+        AnalyticLine = pool.get('analytic_account.line')
+        if line is None:
+            line = AnalyticLine()
+            expense, = Journal.search([
+                    ('type', '=', 'expense'),
+                    ], limit=1)
+            line.name = self.description or self.work.name
+            line.journal = expense
+            line.account = self.work.account
+            line.debit = Decimal('0.0')
+            line.active = True
         line.date = self.date
-        line.save()
+        line.credit = self.compute_cost()
+        return line
 
     @classmethod
     def create(cls, vlist):
+        pool = Pool()
+        AnalyticLine = pool.get('analytic_account.line')
         lines = super(Line, cls).create(vlist)
+        analytic_lines, timesheet_lines = [], []
         for line in lines:
-            line.check_analytic_line()
+            analytic_line = line.get_analytic_line()
+            if analytic_line:
+                analytic_lines.append(analytic_line)
+                timesheet_lines.append(line)
+        if analytic_lines:
+            analytic_lines = AnalyticLine.create([x._save_values
+                    for x in analytic_lines])
+            to_write = []
+            for analytic, timesheet in zip(analytic_lines, timesheet_lines):
+                to_write.extend(([timesheet], {
+                            'analytic_line': analytic.id,
+                            }))
+            # Call super to avoid re-updating analytic_lines
+            super(Line, cls).write(*to_write)
         return lines
 
     @classmethod
     def write(cls, *args):
+        pool = Pool()
+        AnalyticLine = pool.get('analytic_account.line')
         actions = iter(args)
         args = []
-        fields = ['hours', 'employee', 'date', 'company']
+        fields = set(['hours', 'employee', 'date', 'company'])
         update_records = []
         for records, values in zip(actions, actions):
-            for field in fields:
-                if values.get(field):
-                    update_records += records
-                    break
+            if set(values) & fields:
+                update_records += records
             args.extend((records, values))
         super(Line, cls).write(*args)
 
+        to_write = []
         for r in list(set(update_records)):
-            r.check_analytic_line()
+            line = r.get_analytic_line(r.analytic_line)
+            to_write.extend(([line], line._save_values))
+        if to_write:
+            AnalyticLine.write(*to_write)
 
     @classmethod
     def delete(cls, lines):
@@ -112,24 +96,3 @@ class Line:
             default = {}
         default.setdefault('analytic_line', None)
         return super(Line, cls).copy(lines, default=default)
-
-
-class AnalyticTimesheetRelation(ModelSQL):
-    'Analtyic Line - Timesheet Line'
-    __name__ = 'analytic_account.line-timesheet.line'
-
-    analytic_line = fields.Many2One('analytic_account.line',
-         'Analytic Line', ondelete='CASCADE',
-        required=True, select=True)
-    timesheet_line = fields.Many2One('timesheet.line', 'Timesheet Line',
-        ondelete='CASCADE', required=True, select=True)
-
-    @classmethod
-    def __setup__(cls):
-        super(AnalyticTimesheetRelation, cls).__setup__()
-        cls._sql_constraints += [
-            ('analytic_line_unique', 'UNIQUE(analytic_line)',
-                'The Analtyic Line must be unique.'),
-            ('timesheet_line_unique', 'UNIQUE(timesheet_line)',
-                'The Timesheet Line must be unique.'),
-            ]
