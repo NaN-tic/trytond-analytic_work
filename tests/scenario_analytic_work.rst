@@ -127,9 +127,9 @@ Create a timesheet line and check analytic account::
     >>> line.hours = 2.0
     >>> line.save()
     >>> analytic_account.reload()
-    >>> analytic_account.debit
-    Decimal('0.00')
     >>> analytic_account.credit
+    Decimal('0.00')
+    >>> analytic_account.debit
     Decimal('20.00')
 
 If we modify the timesheet line the amount should be updated on analytic::
@@ -137,7 +137,7 @@ If we modify the timesheet line the amount should be updated on analytic::
     >>> line.hours = 4.0
     >>> line.save()
     >>> analytic_account.reload()
-    >>> analytic_account.debit
-    Decimal('0.00')
     >>> analytic_account.credit
+    Decimal('0.00')
+    >>> analytic_account.debit
     Decimal('40.00')

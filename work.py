@@ -33,10 +33,10 @@ class Line:
             line.name = self.description or self.work.name
             line.journal = expense
             line.account = self.work.account
-            line.debit = Decimal('0.0')
+            line.credit = Decimal('0.0')
             line.active = True
         line.date = self.date
-        line.credit = self.compute_cost()
+        line.debit = self.compute_cost()
         return line
 
     @classmethod
