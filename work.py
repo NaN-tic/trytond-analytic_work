@@ -26,6 +26,8 @@ class Line:
         Journal = pool.get('account.journal')
         AnalyticLine = pool.get('analytic_account.line')
         if line is None:
+            if not self.work.account:
+                return
             line = AnalyticLine()
             expense, = Journal.search([
                     ('type', '=', 'expense'),
